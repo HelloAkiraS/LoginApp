@@ -1,5 +1,5 @@
 import { UserCreateInput, UserPublic, User } from "@/types/user";
-import DatabaseService from "./database.services";
+import DatabaseService from "./database.service";
 import { ApiResponse } from "@/types/api";
 import uuid from "react-native-uuid"
 import { TABLES } from "@/constants/database";
