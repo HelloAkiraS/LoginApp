@@ -1,4 +1,4 @@
-import { UserCreateInput, UserPublic, User } from "@/types/user";
+import { TUserCreateInput, TUserPublic, TUser } from "@/types/user";
 import DatabaseService from "./database.service";
 import { ApiResponse } from "@/types/api";
 import uuid from "react-native-uuid"
@@ -16,7 +16,7 @@ class UserService {
      * * @description Hashes the password, generates a unique ID, and stores the user.
      * * @throws Will return an error state if the email is already registered.
      */
-    async createUser(input: UserCreateInput): Promise<ApiResponse<UserPublic>> {
+    async createUser(input: TUserCreateInput): Promise<ApiResponse<TUserPublic>> {
         try {
             const db = await DatabaseService.getDatabase()
             const userId = uuid.v4() as string
@@ -28,7 +28,7 @@ class UserService {
                 [userId, input.email, hashedPassword, now]
             )
 
-            const userPublic: UserPublic = {
+            const userPublic: TUserPublic = {
                 id: userId,
                 email: input.email,
                 createdAt: now
@@ -71,11 +71,11 @@ class UserService {
      * Retrieves a full user record (including sensitive fields) by email.
      * Returns `null` if no user matches the criteria.
      */
-    async getUserByEmail(email: string): Promise<ApiResponse<User>> {
+    async getUserByEmail(email: string): Promise<ApiResponse<TUser>> {
         try {
             const db = await DatabaseService.getDatabase()
 
-            const result = await db.getFirstAsync<User>(
+            const result = await db.getFirstAsync<TUser>(
                 `SELECT * FROM ${TABLES.USER} WHERE email = ? LIMIT 1`,
                 [email]
             )
@@ -100,7 +100,7 @@ class UserService {
      * * @description Returns a generic error message for both "not found" and "wrong password"
      * to prevent account enumeration attacks.
      */
-    async validateCredentials(email: string, password: string): Promise<ApiResponse<UserPublic | null>> {
+    async validateCredentials(email: string, password: string): Promise<ApiResponse<TUserPublic | null>> {
         try {
             const userResponse = await this.getUserByEmail(email)
             const user = userResponse.data
@@ -123,7 +123,7 @@ class UserService {
                 }
             }
 
-            const userPublic: UserPublic = {
+            const userPublic: TUserPublic = {
                 id: user.id,
                 email: user.email,
                 createdAt: user.createdAt

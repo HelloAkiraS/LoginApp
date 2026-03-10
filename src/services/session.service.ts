@@ -1,13 +1,13 @@
 import { SESSION_DURATION, TABLES } from "@/constants/database";
 import { ApiResponse } from "@/types/api";
-import { Session } from "@/types/user";
+import { TSession } from "@/types/user";
 import DatabaseService from "./database.service";
 import uuid from "react-native-uuid"
 import { LoadingState } from "@/constants/enums";
 
 class SessionService {
 
-    async createSession(userId: string): Promise<ApiResponse<Session>>{
+    async createSession(userId: string | null ): Promise<ApiResponse<TSession>>{
         try{
             const db = await DatabaseService.getDatabase()
 
@@ -24,7 +24,7 @@ class SessionService {
                 [SessionId, userId, now, expiresAt]
             )
 
-            const session: Session = {
+            const session: TSession = {
                 id: SessionId,
                 userId: userId,
                 createdAt: now,
@@ -51,12 +51,12 @@ class SessionService {
         
     }
 
-    async validateSession(SessionId: string): Promise<ApiResponse<Session | null>>{
+    async validateSession(SessionId: string): Promise<ApiResponse<TSession | null>>{
         try{
             const db = await DatabaseService.getDatabase()
             const now = Date.now()
 
-            const session = await db.getFirstAsync<Session>(
+            const session = await db.getFirstAsync<TSession>(
                 `
                 SELECT * FROM ${TABLES.SESSION}
                     WHERE id = ?
@@ -97,7 +97,7 @@ class SessionService {
         }
     }
 
-    async deleteSession(SessionId: string): Promise<ApiResponse<Session | null>>{
+    async deleteSession(SessionId: string): Promise<ApiResponse<TSession | null>>{
         try{
             const db = await DatabaseService.getDatabase()
 
@@ -146,12 +146,12 @@ class SessionService {
         }
     }
 
-    async getLatestValidSession(): Promise<ApiResponse<Session | null>>{
+    async getLatestValidSession(): Promise<ApiResponse<TSession | null>>{
         try{
             const db = await DatabaseService.getDatabase()
             const now = Date.now()
 
-            const session = await db.getFirstAsync<Session>(
+            const session = await db.getFirstAsync<TSession>(
                 `
                 SELECT * FROM ${TABLES.SESSION}
                     WHERE expires_at > ?
