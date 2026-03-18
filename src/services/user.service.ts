@@ -44,13 +44,13 @@ class UserService {
             if (errorMessage.includes("UNIQUE")) {
                 return {
                     data: null,
-                    error: `${input.email} já foi cadastrado!`,
+                    error: `${input.email} already registered!`,
                     state: LoadingState.ERROR
                 }
             }
             return {
                 data: null,
-                error: "Erro ao criar usuário.",
+                error: "Error creating user.",
                 state: LoadingState.ERROR
             }
         }
@@ -68,7 +68,8 @@ class UserService {
     }
 
     /**
-     * Retrieves a full user record (including sensitive fields) by email.
+     * Retrieves a full user record (including hashed password) by email.
+     * Should never be returned directly to clients — only used internally.
      * Returns `null` if no user matches the criteria.
      */
     async getUserByEmail(email: string): Promise<ApiResponse<TUser>> {
@@ -113,7 +114,7 @@ class UserService {
                 }
             }
             
-            const isValid = await this.verifyPassword(password, user.password)
+            const isValid = await bcrypt.compare(password, user.password)
 
             if (!isValid) {
                 return {
@@ -142,14 +143,6 @@ class UserService {
                 state: LoadingState.ERROR
             }
         }
-    }
-
-    /**
-     * Compares a raw password against a stored hash.
-     */
-    async verifyPassword(plaintext: string, hash: string): Promise<boolean> {
-        const storedHash = await this.hashPassword(plaintext)
-        return storedHash === hash
     }
 }
 
